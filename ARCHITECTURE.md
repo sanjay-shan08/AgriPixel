@@ -16,10 +16,9 @@
 *   **Webhook Receivers:** Listens to Pingram API for incoming farmer SMS/WhatsApp replies.
 *   **Task Queue (Optional):** Background workers for running the ML pipeline (if needed).
 
-### Data Storage Layer (PostgreSQL + PostGIS)
-*   **Spatial Tables:** Stores villages, blocks, and weather grid geometries.
-*   **Timeseries Tables:** Stores daily weather variables and advisory logs.
-*   **User/Feedback Tables:** Stores farmer profiles, crops, and feedback scores.
+### Data Storage Layer (SQLite)
+*   **Purpose:** Stores villages, blocks, weather grid geometries, daily weather variables, advisory logs, farmer profiles, and feedback scores.
+*   **Note:** Swapped from PostgreSQL to SQLite for Phase 1 to simplify development and setup.
 
 ### Frontend Dashboard (React)
 *   **Target Audience:** Agricultural Extension Officers.

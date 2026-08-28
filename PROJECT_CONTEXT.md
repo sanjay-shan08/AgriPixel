@@ -17,7 +17,7 @@ AgriPixel statistically downscales coarse meteorological data to a panchayat/vil
 *   **Ground-Truth Data:** Tamil Nadu AWS Data (Fallback: CHIRPS satellite data).
 *   **Machine Learning / Data Pipeline:** Python, `xarray`, `scikit-learn`, `xgboost`/`RandomForestRegressor`.
 *   **Backend:** Python with FastAPI.
-*   **Database:** PostgreSQL with PostGIS extension for spatial data handling.
+*   **Database:** SQLite (Initial prototype for faster development).
 *   **Frontend Dashboard:** React.js (Vite) with Vanilla CSS (Premium Aesthetics).
 *   **Delivery Layer:** Pingram API for SMS and WhatsApp integration.
 
