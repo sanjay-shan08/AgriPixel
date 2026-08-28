@@ -1,0 +1,32 @@
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+
+# --- Village Schemas ---
+class VillageBase(BaseModel):
+    name: str
+    district: str
+    latitude: float
+    longitude: float
+
+class VillageCreate(VillageBase):
+    pass
+
+class Village(VillageBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+# --- Inference Schemas ---
+class InferenceRequest(BaseModel):
+    # Expects a sequence of [lookback] days of features: [Rain, Temp, Humidity, Wind]
+    # For a real system, we'd query NASA POWER on the fly, but for the endpoint we accept it here
+    features_sequence: List[List[float]] 
+    district: str
+
+class InferenceResponse(BaseModel):
+    predicted_rain_mm: List[float]
+    extreme_probability: List[float]
+    q95_threshold: List[float]
+    horizon: int
