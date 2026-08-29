@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PINGRAM_API_KEY = os.getenv("PINGRAM_API_KEY", "")
-PINGRAM_API_SECRET = os.getenv("PINGRAM_API_SECRET", "")
 PINGRAM_API_URL = "https://api.pingram.app/v1/messages" # Dummy endpoint for Pingram
 
 def send_whatsapp_advisory(phone_number: str, message: str, forecast_id: int) -> bool:
@@ -13,9 +12,7 @@ def send_whatsapp_advisory(phone_number: str, message: str, forecast_id: int) ->
     Sends the advisory message to the farmer via Pingram WhatsApp API.
     """
     if not PINGRAM_API_KEY or PINGRAM_API_KEY == "your_pingram_api_key_here":
-        print(f"[MOCK PINGRAM] Sending to {phone_number}: {message}")
-        print(f"[MOCK PINGRAM] Tagging with Forecast ID: {forecast_id}")
-        return True
+        raise ValueError("PINGRAM_API_KEY is not set. Refusing to use mock data in production.")
         
     headers = {
         "Authorization": f"Bearer {PINGRAM_API_KEY}",

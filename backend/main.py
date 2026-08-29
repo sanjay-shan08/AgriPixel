@@ -48,6 +48,7 @@ def read_villages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return villages
 
 from advisory_engine import generate_advisory
+from nasa_api import get_real_features
 
 @app.get("/advisory/{village_id}", response_model=schemas.AdvisoryResponse)
 def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(get_db)):
@@ -56,12 +57,11 @@ def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(ge
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
         
-    # In a real app, we would query the database for the latest 14 days of weather for this village.
-    # For now, we simulate a dummy 14-day feature sequence (Rain, Temp, Humidity, Wind).
-    dummy_features = [[0.0, 32.5, 65.0, 4.2] for _ in range(14)]
+    # Fetch real 14-day weather sequence from NASA POWER
+    features = get_real_features(village.latitude, village.longitude)
     
     # Run ML prediction
-    ml_result = ml_service.predict(dummy_features)
+    ml_result = ml_service.predict(features)
     
     # Generate NLP Advisory
     advisory_text = generate_advisory(
@@ -96,9 +96,9 @@ def send_advisory(village_id: int, db: Session = Depends(get_db)):
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
         
-    # Mock ML features
-    dummy_features = [[0.0, 32.5, 65.0, 4.2] for _ in range(14)]
-    ml_result = ml_service.predict(dummy_features)
+    # Fetch real 14-day weather sequence from NASA POWER
+    features = get_real_features(village.latitude, village.longitude)
+    ml_result = ml_service.predict(features)
     
     # Send to all farmers in village
     farmers = db.query(models.Farmer).filter(models.Farmer.village_id == village_id).all()
