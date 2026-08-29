@@ -30,3 +30,9 @@ class InferenceResponse(BaseModel):
     extreme_probability: List[float]
     q95_threshold: List[float]
     horizon: int
+
+class AdvisoryResponse(BaseModel):
+    village_id: int
+    language: str
+    advisory_text: str
+    forecast: InferenceResponse

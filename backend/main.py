@@ -46,3 +46,44 @@ def create_village(village: schemas.VillageCreate, db: Session = Depends(get_db)
 def read_villages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     villages = db.query(models.Village).offset(skip).limit(limit).all()
     return villages
+
+from advisory_engine import generate_advisory
+
+@app.get("/advisory/{village_id}", response_model=schemas.AdvisoryResponse)
+def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(get_db)):
+    # Check if village exists
+    village = db.query(models.Village).filter(models.Village.id == village_id).first()
+    if not village:
+        raise HTTPException(status_code=404, detail="Village not found")
+        
+    # In a real app, we would query the database for the latest 14 days of weather for this village.
+    # For now, we simulate a dummy 14-day feature sequence (Rain, Temp, Humidity, Wind).
+    dummy_features = [[0.0, 32.5, 65.0, 4.2] for _ in range(14)]
+    
+    # Run ML prediction
+    ml_result = ml_service.predict(dummy_features)
+    
+    # Generate NLP Advisory
+    advisory_text = generate_advisory(
+        ml_result["predicted_rain_mm"], 
+        ml_result["extreme_probability"], 
+        language=language
+    )
+    
+    # Save forecast and advisory state to DB (mocking sending SMS for now)
+    db_forecast = models.Forecast(
+        village_id=village.id,
+        predicted_rain_mm=sum(ml_result["predicted_rain_mm"])/3.0,
+        extreme_probability=max(ml_result["extreme_probability"]),
+        q95_threshold=max(ml_result["q95_threshold"]),
+        advisory_sent=True
+    )
+    db.add(db_forecast)
+    db.commit()
+    
+    return {
+        "village_id": village_id,
+        "language": language,
+        "advisory_text": advisory_text,
+        "forecast": ml_result
+    }
