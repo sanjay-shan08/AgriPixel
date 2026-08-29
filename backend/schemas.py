@@ -36,3 +36,8 @@ class AdvisoryResponse(BaseModel):
     language: str
     advisory_text: str
     forecast: InferenceResponse
+
+class PingramWebhookPayload(BaseModel):
+    from_number: str
+    message_body: str
+    forecast_id: int # Extracted from the metadata we sent

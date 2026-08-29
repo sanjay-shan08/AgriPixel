@@ -87,3 +87,68 @@ def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(ge
         "advisory_text": advisory_text,
         "forecast": ml_result
     }
+
+from pingram_service import send_whatsapp_advisory
+
+@app.post("/advisory/send/{village_id}")
+def send_advisory(village_id: int, db: Session = Depends(get_db)):
+    village = db.query(models.Village).filter(models.Village.id == village_id).first()
+    if not village:
+        raise HTTPException(status_code=404, detail="Village not found")
+        
+    # Mock ML features
+    dummy_features = [[0.0, 32.5, 65.0, 4.2] for _ in range(14)]
+    ml_result = ml_service.predict(dummy_features)
+    
+    # Send to all farmers in village
+    farmers = db.query(models.Farmer).filter(models.Farmer.village_id == village_id).all()
+    
+    messages_sent = 0
+    for farmer in farmers:
+        advisory_text = generate_advisory(
+            ml_result["predicted_rain_mm"], 
+            ml_result["extreme_probability"], 
+            language=farmer.language
+        )
+        
+        # Log forecast to DB
+        db_forecast = models.Forecast(
+            village_id=village.id,
+            predicted_rain_mm=sum(ml_result["predicted_rain_mm"])/3.0,
+            extreme_probability=max(ml_result["extreme_probability"]),
+            q95_threshold=max(ml_result["q95_threshold"]),
+            advisory_sent=True
+        )
+        db.add(db_forecast)
+        db.commit()
+        db.refresh(db_forecast)
+        
+        # Send via Pingram
+        success = send_whatsapp_advisory(farmer.phone_number, advisory_text, db_forecast.id)
+        if success:
+            messages_sent += 1
+            
+    return {"message": f"Sent advisories to {messages_sent} farmers in {village.name}."}
+
+@app.post("/pingram/webhook")
+def pingram_webhook(payload: schemas.PingramWebhookPayload, db: Session = Depends(get_db)):
+    """
+    Receives farmer feedback (Thumbs Up/Down) from WhatsApp.
+    """
+    forecast = db.query(models.Forecast).filter(models.Forecast.id == payload.forecast_id).first()
+    if not forecast:
+        return {"status": "ignored", "reason": "Forecast ID not found"}
+        
+    body = payload.message_body.strip().lower()
+    
+    # Simple parsing: 1/yes/thumbs up vs 0/no/thumbs down
+    if body in ["1", "yes", "👍", "true"]:
+        forecast.farmer_feedback = 1
+    elif body in ["0", "no", "👎", "false"]:
+        forecast.farmer_feedback = -1
+    else:
+        # Unable to parse feedback
+        return {"status": "ignored", "reason": "Unrecognized feedback"}
+        
+    db.commit()
+    return {"status": "success", "feedback_recorded": forecast.farmer_feedback}
