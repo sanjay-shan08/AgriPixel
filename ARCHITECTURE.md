@@ -8,7 +8,7 @@
 
 ### Machine Learning / Processing Layer (Python)
 *   **Downscaling Baseline:** Statistical quantile mapping to adjust coarse data against known terrain distributions.
-*   **ML Residual Model:** A lightweight tree-based model (XGBoost/Random Forest) that predicts and corrects the remaining error from the baseline.
+*   **ML Residual Model:** A PyTorch-based `MultiTaskRainfallTransformer` that predicts rainfall, extreme weather probabilities, and quantiles using a 14-day lookback.
 *   **Advisory NLP Engine:** Rule-based logic that takes final weather arrays and outputs regional language text based on crop calendars.
 
 ### Backend Services (FastAPI)
@@ -31,17 +31,17 @@
 `NASA POWER API` → `Data Ingestion Service` → `ML Downscaling Engine` → `PostgreSQL` → `Advisory Generator` → `Pingram API` → `Farmer`
 *(Feedback Flow)*: `Farmer Reply` → `Pingram Webhook` → `FastAPI` → `PostgreSQL` → *(Improves ML Model next cycle)*
 
-## 3. Module Structure (Proposed)
+## 3. Module Structure (Actual)
 ```text
 /backend
-  /api          # FastAPI routes
-  /core         # Configuration, DB connection
-  /data         # Data ingestion scripts
-  /ml           # Downscaling and ML models
-  /services     # Advisory logic, Pingram integration
-/frontend
-  /src
-    /components # Reusable UI components
-    /pages      # Dashboard views
-    /styles     # Vanilla CSS modules
+  main.py             # FastAPI routes
+  models.py           # SQLAlchemy DB models
+  schemas.py          # Pydantic schemas
+  database.py         # SQLite config
+  ml_service.py       # PyTorch model inference
+  advisory_engine.py  # NLP rule-based logic
+/data                 # Data ingestion scripts and CSV datasets
+/frontend             # React dashboard (Pending)
+/ml_engine            # PyTorch model definitions and training scripts
+/notebooks            # Jupyter notebooks for data analysis
 ```

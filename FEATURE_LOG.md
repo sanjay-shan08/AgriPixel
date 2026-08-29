@@ -19,4 +19,11 @@
     *   `FEATURE_LOG.md`
 *   Added Jupyter notebooks (`extreme-rainfall-risk-atlas.ipynb`, `india-weather-analysis-2026-super-el-nino-impac.ipynb`) for initial data exploration and analysis.
 *   Developed `nasa_fetch.py` script to pull historical coarse weather data from NASA POWER API.
-*   *(Pending)*: Initialize backend and frontend repositories.
+*   *(Pending)*: Initialize frontend repository.
+
+## Day 2: Backend and ML Scaffolding (2026-08-28)
+
+### Features Implemented
+*   Organized project structure into `/backend`, `/data`, `/frontend`, `/ml_engine`, and `/notebooks`.
+*   Implemented PyTorch `MultiTaskRainfallTransformer` model in `ml_engine/model.py` for multi-horizon forecasting and extreme weather prediction.
+*   Scaffolded FastAPI backend with SQLAlchemy (SQLite) and integrated the ML inference service and advisory engine (`backend/main.py`).

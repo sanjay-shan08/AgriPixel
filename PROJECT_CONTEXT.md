@@ -15,7 +15,7 @@ AgriPixel statistically downscales coarse meteorological data to a panchayat/vil
 ## Tech Stack
 *   **Coarse Data Source:** NASA POWER API (Fallback: ERA5).
 *   **Ground-Truth Data:** Tamil Nadu AWS Data (Fallback: CHIRPS satellite data).
-*   **Machine Learning / Data Pipeline:** Python, `xarray`, `scikit-learn`, `xgboost`/`RandomForestRegressor`.
+*   **Machine Learning / Data Pipeline:** Python, `xarray`, `PyTorch` (Multi-Task Transformer for rainfall and extreme weather prediction).
 *   **Backend:** Python with FastAPI.
 *   **Database:** SQLite (Initial prototype for faster development).
 *   **Frontend Dashboard:** React.js (Vite) with Vanilla CSS (Premium Aesthetics).
