@@ -130,6 +130,45 @@ def send_advisory(village_id: int, db: Session = Depends(get_db)):
             
     return {"message": f"Sent advisories to {messages_sent} farmers in {village.name}."}
 
+@app.post("/downscale", response_model=list[schemas.Village])
+def downscale_region(req: schemas.DownscaleRequest, db: Session = Depends(get_db)):
+    """
+    Generates a 5x5 grid (25 panchayats) centered at the given lat/lon.
+    """
+    grid_size = 5
+    step = 0.045
+    offset = grid_size // 2
+    
+    new_villages = []
+    for i in range(grid_size):
+        for j in range(grid_size):
+            lat = req.lat + (i - offset) * step
+            lon = req.lon + (j - offset) * step
+            
+            db_v = models.Village(
+                name=f"Dynamic Node P({i},{j})",
+                district="On-Demand Downscale",
+                latitude=round(lat, 4),
+                longitude=round(lon, 4)
+            )
+            db.add(db_v)
+            new_villages.append(db_v)
+            
+    db.commit()
+    
+    for v in new_villages:
+        db.refresh(v)
+        farmer = models.Farmer(
+            phone_number=f"+919876000{v.id%1000:03d}", 
+            language="ta", 
+            primary_crop="Rice", 
+            village_id=v.id
+        )
+        db.add(farmer)
+    db.commit()
+    
+    return new_villages
+
 @app.post("/pingram/webhook")
 def pingram_webhook(payload: schemas.PingramWebhookPayload, db: Session = Depends(get_db)):
     """
