@@ -29,7 +29,7 @@ class WeatherDataset(Dataset):
         return self.X[idx], self.Y_rain[idx], self.Y_ext[idx], self.Y_q[idx]
 
 def prepare_data():
-    data_path = Path(__file__).parent.parent / "data" / "tamil_nadu_weather.csv"
+    data_path = Path(__file__).parent.parent / "data" / "tamil_nadu_weather_10yr.csv"
     df = pd.read_csv(data_path)
     
     # Sort by District and Date
@@ -42,7 +42,7 @@ def prepare_data():
     q95_thresholds = df.groupby("District")["Rainfall_mm"].quantile(0.95).to_dict()
 
     for district, group in df.groupby("District"):
-        features = group[["Rainfall_mm", "Temp_C", "Humidity_pct", "WindSpeed_ms"]].values
+        features = group[["Rainfall_mm", "Temperature_C", "Humidity_pct", "WindSpeed_ms"]].values
         
         # Standardize features
         mean = features.mean(axis=0)
