@@ -3,7 +3,7 @@
 ## 1. System Layers
 
 ### Data Ingestion Layer
-*   **Sources:** NASA POWER (Coarse weather), CHIRPS/AWS (Ground-truth), SRTM (Elevation data).
+*   **Sources:** Open-Meteo (Live Coarse weather), NASA POWER (Historical training), CHIRPS/AWS (Ground-truth), SRTM (Elevation data).
 *   **Function:** Scheduled Python scripts that pull latest weather data for the Tamil Nadu bounding box.
 
 ### Machine Learning / Processing Layer (Python)
@@ -28,8 +28,8 @@
 *   **Pingram API:** Handles outbound WhatsApp/SMS routing and inbound replies.
 
 ## 2. Core Data Flow
-`NASA POWER API` → `Data Ingestion Service` → `ML Downscaling Engine` → `PostgreSQL` → `Advisory Generator` → `Pingram API` → `Farmer`
-*(Feedback Flow)*: `Farmer Reply` → `Pingram Webhook` → `FastAPI` → `PostgreSQL` → *(Improves ML Model next cycle)*
+`Open-Meteo API` → `Data Ingestion Service` → `ML Downscaling Engine` → `SQLite` → `Advisory Generator` → `Pingram API` → `Farmer`
+*(Feedback Flow)*: `Farmer Reply` → `Pingram Webhook` → `FastAPI` → `SQLite` → *(Improves ML Model next cycle)*
 
 ## 3. Module Structure (Actual)
 ```text
@@ -41,7 +41,7 @@
   ml_service.py       # PyTorch model inference
   advisory_engine.py  # NLP rule-based logic
 /data                 # Data ingestion scripts and CSV datasets
-/frontend             # React dashboard (Pending)
+/frontend             # React dashboard (Vite + Leaflet)
 /ml_engine            # PyTorch model definitions and training scripts
 /notebooks            # Jupyter notebooks for data analysis
 ```

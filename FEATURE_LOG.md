@@ -19,7 +19,6 @@
     *   `FEATURE_LOG.md`
 *   Added Jupyter notebooks (`extreme-rainfall-risk-atlas.ipynb`, `india-weather-analysis-2026-super-el-nino-impac.ipynb`) for initial data exploration and analysis.
 *   Developed `nasa_fetch.py` script to pull historical coarse weather data from NASA POWER API.
-*   *(Pending)*: Initialize frontend repository.
 
 ## Day 2: Backend and ML Scaffolding (2026-08-28)
 
@@ -27,3 +26,17 @@
 *   Organized project structure into `/backend`, `/data`, `/frontend`, `/ml_engine`, and `/notebooks`.
 *   Implemented PyTorch `MultiTaskRainfallTransformer` model in `ml_engine/model.py` for multi-horizon forecasting and extreme weather prediction.
 *   Scaffolded FastAPI backend with SQLAlchemy (SQLite) and integrated the ML inference service and advisory engine (`backend/main.py`).
+
+## Day 3: Frontend Initialization (2026-08-29)
+
+### Features Implemented
+*   Initialized React frontend dashboard using Vite.
+*   Added `react-leaflet` and `leaflet` dependencies for the interactive weather map to compare forecasts.
+*   Added `lucide-react` for iconography.
+*   Configured standard frontend structure (`src/components`, `index.css`) relying on Vanilla CSS as per coding guidelines.
+
+## Day 4: Model Training Strategy & API Switch (2026-08-30)
+
+### Decisions
+*   **Training Data Scaling:** Decided to expand ML model training by fetching 10 years of historical data from NASA POWER for all 38 districts of Tamil Nadu to improve accuracy.
+*   **Live Coarse Data Source:** Switched from NASA POWER API to **Open-Meteo API** for real-time inference to eliminate the 2-day latency limitation of NASA POWER.
