@@ -48,7 +48,7 @@ def read_villages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return villages
 
 from advisory_engine import generate_advisory
-from nasa_api import get_real_features
+from open_meteo_api import get_real_features
 
 @app.get("/advisory/{village_id}", response_model=schemas.AdvisoryResponse)
 def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(get_db)):

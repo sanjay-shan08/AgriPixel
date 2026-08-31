@@ -36,4 +36,10 @@ def generate_advisory(predicted_rain_mm: list, extreme_prob: list, language: str
     else:
         advice = lang_dict["clear_weather"]
         
-    return f"{lang_dict['greeting']}\n\n{advice}"
+    # Inject exact numbers to show precision
+    if language == "ta":
+        metrics = f"(எதிர்பார்க்கப்படும் மழை: {avg_rain:.1f} மி.மீ | அபாய நிலை: {max_extreme_prob*100:.1f}%)"
+    else:
+        metrics = f"(Expected Rain: {avg_rain:.1f} mm | Risk: {max_extreme_prob*100:.1f}%)"
+        
+    return f"{lang_dict['greeting']} {metrics}\n\n{advice}"
