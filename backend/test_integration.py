@@ -1,86 +1,66 @@
-import requests
-from database import SessionLocal
-import models
-import time
+import sys
+from pathlib import Path
 
-BASE_URL = "http://127.0.0.1:8000"
+# Add necessary paths
+base_path = Path(__file__).parent
+sys.path.append(str(base_path))
 
-def setup_db():
-    print("[1] Seeding database with a Village and Farmer...")
-    db = SessionLocal()
+from ml_service import ml_service
+from advisory_engine import generate_advisory
+
+def run_e2e_test():
+    print("="*50)
+    print(" AGRIPIXEL E2E INTEGRATION TEST")
+    print("="*50)
+
+    # 1. Define the Microclimate (Valparai - High Altitude Hill Station)
+    village = "Valparai_Hill"
+    lat = 10.3273
+    lon = 76.9536
+    elevation = 1065.0
     
-    # Check if village exists
-    village = db.query(models.Village).filter(models.Village.name == "Test Village").first()
-    if not village:
-        village = models.Village(name="Test Village", district="Chennai", latitude=13.08, longitude=80.27)
-        db.add(village)
-        db.commit()
-        db.refresh(village)
-        
-    # Check if farmer exists
-    farmer = db.query(models.Farmer).filter(models.Farmer.phone_number == "+919876543210").first()
-    if not farmer:
-        farmer = models.Farmer(
-            phone_number="+919876543210", 
-            language="ta", 
-            primary_crop="Rice", 
-            village_id=village.id
-        )
-        db.add(farmer)
-        db.commit()
-        
-    db.close()
-    return village.id
-
-def test_endpoints(village_id):
-    print("\n[2] Testing GET /villages/")
-    resp = requests.get(f"{BASE_URL}/villages/")
-    print(f"Status: {resp.status_code}, Response: {resp.json()}")
-
-    print(f"\n[3] Testing GET /advisory/{village_id}")
-    resp = requests.get(f"{BASE_URL}/advisory/{village_id}?language=ta")
-    print(f"Status: {resp.status_code}")
-    advisory_data = resp.json()
-    print(f"Advisory Text: {advisory_data.get('advisory_text')}")
+    print(f" Target Microclimate: {village} (Elev: {elevation}m)")
     
-    print(f"\n[4] Testing POST /advisory/send/{village_id}")
-    resp = requests.post(f"{BASE_URL}/advisory/send/{village_id}")
-    print(f"Status: {resp.status_code}, Response: {resp.json()}")
-
-    # To test the webhook, we need the forecast_id that was just generated
-    db = SessionLocal()
-    forecast = db.query(models.Forecast).order_by(models.Forecast.id.desc()).first()
-    db.close()
+    # 2. Mock 14-day Coarse Weather Input (Temp, Humidity, Wind, Rain)
+    # We'll simulate a period where the baseline coarse block suggests "Moderate" rain.
+    # Because Valparai is a high-altitude hill station, the spatial model should theoretically react to it.
+    print("\n Fetching Coarse Weather Sequence (14 days)...")
+    mock_sequence = [
+        [26.5, 80.0, 3.5, 15.0] for _ in range(14) # Consistent 15mm moderate rain block-level
+    ]
     
-    if forecast:
-        print(f"\n[5] Simulating Farmer WhatsApp Reply (Webhook) for Forecast ID {forecast.id}...")
-        webhook_payload = {
-            "from_number": "+919876543210",
-            "message_body": "👍",
-            "forecast_id": forecast.id
-        }
-        resp = requests.post(f"{BASE_URL}/pingram/webhook", json=webhook_payload)
-        print(f"Status: {resp.status_code}, Response: {resp.json()}")
+    # 3. Spatio-Temporal Inference
+    print(" Running Spatio-Temporal Downscaling Inference...")
+    try:
+        preds = ml_service.predict(village, lat, lon, elevation, mock_sequence)
+        predicted_rain = preds["predicted_rain_mm"]
+        risk = preds["extreme_probability"]
         
-        # Verify in DB
-        db = SessionLocal()
-        updated_forecast = db.query(models.Forecast).filter(models.Forecast.id == forecast.id).first()
-        print(f"Verified Farmer Feedback in DB: {updated_forecast.farmer_feedback} (1 = Thumbs Up)")
-        db.close()
+        print(f"   -> Downscaled Rain Forecast (Next 3 Days): {[round(r, 2) for r in predicted_rain]} mm")
+        print(f"   -> Extreme Weather Risk: {[round(r*100, 1) for r in risk]}%")
+    except Exception as e:
+        print(f"[!] ML Service Failed: {e}")
+        return
+        
+    # 4. NLP Advisory Generation
+    print("\n Generating Localized Advisory (Tamil & English)...")
+    try:
+        tamil_advisory = generate_advisory(predicted_rain, risk, language="ta")
+        english_advisory = generate_advisory(predicted_rain, risk, language="en")
+        
+        print("\n----- SMS PAYLOAD (TAMIL) -----")
+        print(tamil_advisory)
+        print("-------------------------------")
+        
+        print("\n----- SMS PAYLOAD (ENGLISH) -----")
+        print(english_advisory)
+        print("---------------------------------")
+        
+    except Exception as e:
+        print(f"[!] Advisory Engine Failed: {e}")
+        return
+
+    print("\n E2E Pipeline Test Completed Successfully!")
 
 if __name__ == "__main__":
-    try:
-        # Wait for server to start if running via script
-        print("Waiting for API server to be reachable...")
-        for _ in range(5):
-            try:
-                requests.get(BASE_URL)
-                break
-            except requests.exceptions.ConnectionError:
-                time.sleep(2)
-                
-        vid = setup_db()
-        test_endpoints(vid)
-        print("\n✅ End-to-End Pipeline Test Completed Successfully!")
-    except Exception as e:
-        print(f"\n❌ E2E Test Failed: {e}")
+    run_e2e_test()

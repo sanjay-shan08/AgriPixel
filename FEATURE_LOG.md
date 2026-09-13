@@ -40,3 +40,12 @@
 ### Decisions
 *   **Training Data Scaling:** Decided to expand ML model training by fetching 10 years of historical data from NASA POWER for all 38 districts of Tamil Nadu to improve accuracy.
 *   **Live Coarse Data Source:** Switched from NASA POWER API to **Open-Meteo API** for real-time inference to eliminate the 2-day latency limitation of NASA POWER.
+
+## Day 5-14: Model Training and Integration (2026-09-01 to 2026-09-14)
+
+### Features Implemented
+*   **Data Pipelines:** Developed `fetch_chirps.py` and `fetch_elevation.py` to acquire high-resolution ground truth and terrain data.
+*   **Dataset Alignment:** Created `align_datasets.py` to map the coarse NASA POWER weather grids to the high-resolution CHIRPS/Elevation data.
+*   **Model Training:** Successfully trained the `MultiTaskRainfallTransformer` model (`ml_engine/train.py`), generating production weights (`weights.pt`) and scalers (`scaler.json`).
+*   **Validation:** Added `validate.py` notebook to evaluate model accuracy against ground truth.
+*   **Backend Integration:** Integrated the fully trained PyTorch model into the FastAPI backend (`ml_service.py`) and created an integration test suite (`test_integration.py`).

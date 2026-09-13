@@ -15,7 +15,7 @@ AgriPixel statistically downscales coarse meteorological data to a panchayat/vil
 ## Tech Stack
 *   **Historical Training Data:** NASA POWER API (10 years of data for all 38 TN districts).
 *   **Live Coarse Data Source:** Open-Meteo API (Switched from NASA POWER to eliminate the 2-day latency).
-*   **Ground-Truth Data:** Tamil Nadu AWS Data (Fallback: CHIRPS satellite data).
+*   **Ground-Truth Data:** High-resolution CHIRPS satellite data and SRTM Elevation data.
 *   **Machine Learning / Data Pipeline:** Python, `xarray`, `PyTorch` (Multi-Task Transformer for rainfall and extreme weather prediction).
 *   **Backend:** Python with FastAPI.
 *   **Database:** SQLite (Initial prototype for faster development).

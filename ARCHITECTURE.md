@@ -40,8 +40,14 @@
   database.py         # SQLite config
   ml_service.py       # PyTorch model inference
   advisory_engine.py  # NLP rule-based logic
-/data                 # Data ingestion scripts and CSV datasets
+  nasa_api.py         # Historical API integration
+  open_meteo_api.py   # Live weather API integration
+  pingram_service.py  # WhatsApp/SMS delivery integration
+  seed.py             # Database seeding script
+  test_integration.py # Integration test suite
+/data                 # Ingestion scripts (fetch_chirps, fetch_elevation, align_datasets)
 /frontend             # React dashboard (Vite + Leaflet)
-/ml_engine            # PyTorch model definitions and training scripts
-/notebooks            # Jupyter notebooks for data analysis
+  /src/components     # AdvisoryPanel, Sidebar, WeatherMap
+/ml_engine            # PyTorch model, train.py, weights.pt, scaler.json
+/notebooks            # Jupyter notebooks for data analysis and validate.py
 ```
