@@ -49,3 +49,12 @@
 *   **Model Training:** Successfully trained the `MultiTaskRainfallTransformer` model (`ml_engine/train.py`), generating production weights (`weights.pt`) and scalers (`scaler.json`).
 *   **Validation:** Added `validate.py` notebook to evaluate model accuracy against ground truth.
 *   **Backend Integration:** Integrated the fully trained PyTorch model into the FastAPI backend (`ml_service.py`) and created an integration test suite (`test_integration.py`).
+
+## Day 15: Real Data Seeding & Model Integration Fixes (2026-09-15)
+
+### Features Implemented
+*   **Database Schema:** Added `elevation` to the `Village` schema in SQLAlchemy and Pydantic models to feed crucial terrain data to the ML model.
+*   **API Alignment:** Corrected `open_meteo_api.py` feature extraction to match the exact `[Temp, Humidity, Wind, Rain]` tensor order expected by the trained PyTorch model.
+*   **Seeding:** Refactored `seed.py` from generating generic grids to seeding specific real pilot villages (e.g., Mettupalayam, Valparai) with real baseline elevations.
+*   **Inference Pipeline:** Updated `ml_service.py` and `main.py` inference endpoints to pass spatial metadata (latitude, longitude, elevation) directly into the prediction layer.
+*   **Bug Fixes:** Resolved UTF-8 encoding issues in the integration test suite for handling Tamil character outputs.

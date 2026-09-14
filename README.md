@@ -20,16 +20,16 @@ We then auto-generate a plain-language, crop-specific agro-advisory and deliver 
 
 ### How it works:
 1. **Data Ingestion:** Real-time coarse weather data is pulled from the **Open-Meteo API** (eliminating NASA POWER's 2-day latency for live data).
-2. **ML Downscaling Engine:** A PyTorch-based `MultiTaskRainfallTransformer` model (trained on 10 years of NASA POWER historical data) predicts hyperlocal rainfall, extreme weather probabilities, and quantiles using a 14-day lookback.
+2. **ML Downscaling Engine:** A PyTorch-based spatio-temporal `MultiTaskRainfallTransformer` model (trained on 10 years of NASA POWER historical data aligned with CHIRPS high-resolution ground truth) predicts hyperlocal rainfall, extreme weather probabilities, and quantiles by fusing a 14-day weather lookback with static geographic features (Latitude, Longitude, Elevation).
 3. **Advisory Generator:** An NLP rule-engine converts raw forecast variables into actionable crop-stage advice *(e.g., "Delay sowing", "Spray pesticide today")*.
 4. **Delivery & Feedback:** Sent via SMS/WhatsApp (Pingram API). Farmers can reply with a "Thumbs Up/Down" to continuously validate and improve the local model via webhooks.
 
 ## 📁 Repository Structure
-* `/backend`: FastAPI server handling ML inference, SQLite database, and the NLP advisory generation logic.
-* `/frontend`: React dashboard (Vite + Leaflet) for Agricultural Extension Officers to visualize block-level vs. village-level discrepancies.
-* `/ml_engine`: PyTorch `MultiTaskRainfallTransformer` model definitions and training logic.
-* `/data`: Python scripts for data ingestion and historical dataset storage.
-* `/notebooks`: Jupyter notebooks for data exploration and extreme weather risk analysis.
+* `/backend`: FastAPI server, ML inference service (`ml_service.py`), SQLite DB, and API integrations (Open-Meteo, Pingram).
+* `/frontend`: React dashboard (Vite + Leaflet) for mapping block-level vs. village-level discrepancies.
+* `/ml_engine`: PyTorch `MultiTaskRainfallTransformer` training scripts and generated weights (`weights.pt`).
+* `/data`: Ingestion pipelines for CHIRPS (ground truth), SRTM (elevation), and dataset alignment scripts.
+* `/notebooks`: Jupyter notebooks for extreme weather risk analysis and model validation (`validate.py`).
 * `AgriPixel_SIH2026.pptx`: Official presentation deck for the hackathon.
 
 ## 🌍 The Impact

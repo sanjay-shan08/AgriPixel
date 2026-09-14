@@ -11,6 +11,7 @@ class Village(Base):
     district = Column(String, index=True)
     latitude = Column(Float)
     longitude = Column(Float)
+    elevation = Column(Float, default=500.0)
 
     forecasts = relationship("Forecast", back_populates="village")
     farmers = relationship("Farmer", back_populates="village")

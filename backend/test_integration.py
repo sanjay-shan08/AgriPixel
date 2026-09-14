@@ -1,5 +1,9 @@
 import sys
+import io
 from pathlib import Path
+
+# Force UTF-8 encoding for standard output to handle Tamil characters
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Add necessary paths
 base_path = Path(__file__).parent

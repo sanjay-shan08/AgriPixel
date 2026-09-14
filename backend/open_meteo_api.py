@@ -59,15 +59,15 @@ def get_real_features(lat: float, lon: float, lookback: int = 14) -> list:
             if hum is None: hum = MEAN[2]
             if wind is None: wind = MEAN[3]
             
-            raw_features = np.array([rain, temp, hum, wind])
-            scaled_features = (raw_features - MEAN) / STD
-            features_list.append(scaled_features.tolist())
+            raw_features = np.array([temp, hum, wind, rain])
+            features_list.append(raw_features.tolist())
             
         # Ensure exactly `lookback` length
         if len(features_list) > lookback:
             features_list = features_list[-lookback:]
         elif len(features_list) < lookback:
-            padding = [[0.0, 0.0, 0.0, 0.0]] * (lookback - len(features_list))
+            avg_day = [MEAN[1], MEAN[2], MEAN[3], MEAN[0]]  # [temp, hum, wind, rain] order
+            padding = [avg_day] * (lookback - len(features_list))
             features_list = padding + features_list
             
         return features_list

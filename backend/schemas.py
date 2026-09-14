@@ -8,6 +8,7 @@ class VillageBase(BaseModel):
     district: str
     latitude: float
     longitude: float
+    elevation: float
 
 class VillageCreate(VillageBase):
     pass
@@ -20,10 +21,13 @@ class Village(VillageBase):
 
 # --- Inference Schemas ---
 class InferenceRequest(BaseModel):
-    # Expects a sequence of [lookback] days of features: [Rain, Temp, Humidity, Wind]
+    # Expects a sequence of [lookback] days of features: [Temp, Humidity, Wind, Rain]
     # For a real system, we'd query NASA POWER on the fly, but for the endpoint we accept it here
     features_sequence: List[List[float]] 
-    district: str
+    village_name: str
+    lat: float
+    lon: float
+    elevation: float
 
 class InferenceResponse(BaseModel):
     predicted_rain_mm: List[float]

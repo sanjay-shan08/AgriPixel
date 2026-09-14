@@ -30,7 +30,13 @@ def predict_weather(request: schemas.InferenceRequest):
         raise HTTPException(status_code=400, detail="Must provide exactly 14 days of lookback features.")
     
     # Run inference through our loaded PyTorch model
-    result = ml_service.predict(request.features_sequence)
+    result = ml_service.predict(
+        request.village_name, 
+        request.lat, 
+        request.lon, 
+        request.elevation, 
+        request.features_sequence
+    )
     return result
 
 # --- Village Endpoints ---
@@ -61,7 +67,7 @@ def get_advisory(village_id: int, language: str = "ta", db: Session = Depends(ge
     features = get_real_features(village.latitude, village.longitude)
     
     # Run ML prediction
-    ml_result = ml_service.predict(features)
+    ml_result = ml_service.predict(village.name, village.latitude, village.longitude, village.elevation, features)
     
     # Generate NLP Advisory
     advisory_text = generate_advisory(
@@ -98,7 +104,7 @@ def send_advisory(village_id: int, db: Session = Depends(get_db)):
         
     # Fetch real 14-day weather sequence from NASA POWER
     features = get_real_features(village.latitude, village.longitude)
-    ml_result = ml_service.predict(features)
+    ml_result = ml_service.predict(village.name, village.latitude, village.longitude, village.elevation, features)
     
     # Send to all farmers in village
     farmers = db.query(models.Farmer).filter(models.Farmer.village_id == village_id).all()

@@ -7,8 +7,8 @@
 *   **Function:** Scheduled Python scripts that pull latest weather data for the Tamil Nadu bounding box.
 
 ### Machine Learning / Processing Layer (Python)
-*   **Downscaling Baseline:** Statistical quantile mapping to adjust coarse data against known terrain distributions.
-*   **ML Residual Model:** A PyTorch-based `MultiTaskRainfallTransformer` that predicts rainfall, extreme weather probabilities, and quantiles using a 14-day lookback.
+*   **Downscaling Engine:** A PyTorch-based spatio-temporal `MultiTaskRainfallTransformer` that fuses 14-day coarse weather lookbacks with precise static geographical features (Latitude, Longitude, Elevation).
+*   **Deep Quantile Regression:** Optimizes a pinball loss function to dynamically predict the Q95 extreme weather thresholds for the specific microclimate.
 *   **Advisory NLP Engine:** Rule-based logic that takes final weather arrays and outputs regional language text based on crop calendars.
 
 ### Backend Services (FastAPI)
@@ -17,7 +17,7 @@
 *   **Task Queue (Optional):** Background workers for running the ML pipeline (if needed).
 
 ### Data Storage Layer (SQLite)
-*   **Purpose:** Stores villages, blocks, weather grid geometries, daily weather variables, advisory logs, farmer profiles, and feedback scores.
+*   **Purpose:** Stores villages (with elevations), blocks, weather grid geometries, daily weather variables, advisory logs, farmer profiles, and feedback scores.
 *   **Note:** Swapped from PostgreSQL to SQLite for Phase 1 to simplify development and setup.
 
 ### Frontend Dashboard (React)

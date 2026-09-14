@@ -1,41 +1,8 @@
-from database import SessionLocal
+from database import SessionLocal, engine
 import models
-import math
-
-def generate_grid(center_name, center_lat, center_lon, grid_size=3, step=0.045):
-    """
-    Generates a grid of villages around a center point.
-    step = 0.045 is approx 5km in degrees.
-    grid_size = 3 creates a 3x3 grid (9 villages).
-    """
-    villages = []
-    offset = grid_size // 2
-    
-    vid = 1 if center_name == "Coimbatore" else 100 # just for unique fake ids
-    
-    for i in range(grid_size):
-        for j in range(grid_size):
-            lat = center_lat + (i - offset) * step
-            lon = center_lon + (j - offset) * step
-            
-            # Simple naming: N/S/E/W based on position relative to center
-            ns = "North" if i > offset else "South" if i < offset else "Central"
-            ew = "East" if j > offset else "West" if j < offset else ""
-            if ns == "Central" and ew == "":
-                name = f"{center_name} Main Panchayat"
-            else:
-                name = f"{center_name} {ns} {ew} Panchayat".strip()
-                
-            villages.append({
-                "name": name,
-                "district": center_name,
-                "latitude": round(lat, 4),
-                "longitude": round(lon, 4)
-            })
-            vid += 1
-    return villages
 
 def seed():
+    models.Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     
     # 1. Clear existing data
@@ -45,17 +12,41 @@ def seed():
     db.commit()
     print("Cleared old mock data.")
 
-    # 2. Generate Coimbatore Block (3x3 = 9 villages)
-    cbe_villages = generate_grid("Coimbatore", 11.0168, 76.9558, 3)
+    # 2. Define real villages that match scaler.json
+    real_villages = [
+        {
+            "name": "Mettupalayam",
+            "district": "Coimbatore",
+            "latitude": 11.3000,
+            "longitude": 76.9500,
+            "elevation": 314.0
+        },
+        {
+            "name": "Pollachi",
+            "district": "Coimbatore",
+            "latitude": 10.6600,
+            "longitude": 77.0100,
+            "elevation": 293.0
+        },
+        {
+            "name": "Sulur_Plains",
+            "district": "Coimbatore",
+            "latitude": 11.0300,
+            "longitude": 77.1300,
+            "elevation": 340.0
+        },
+        {
+            "name": "Valparai_Hill",
+            "district": "Coimbatore",
+            "latitude": 10.3300,
+            "longitude": 76.9500,
+            "elevation": 1065.0
+        }
+    ]
     
-    # 3. Generate Madurai Block (3x3 = 9 villages)
-    mdu_villages = generate_grid("Madurai", 9.9252, 78.1198, 3)
-    
-    all_villages = cbe_villages + mdu_villages
-    
-    # 4. Insert into DB
+    # 3. Insert into DB
     v_id = 1
-    for v in all_villages:
+    for v in real_villages:
         v["id"] = v_id
         new_v = models.Village(**v)
         db.add(new_v)
@@ -72,7 +63,7 @@ def seed():
             
     db.commit()
     db.close()
-    print(f"Database seeded with {len(all_villages)} downscaled Panchayat-level points.")
+    print(f"Database seeded with {len(real_villages)} downscaled Panchayat-level points.")
 
 if __name__ == "__main__":
     seed()
